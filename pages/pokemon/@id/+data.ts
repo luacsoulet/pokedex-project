@@ -1,5 +1,4 @@
 import type { PageContextServer } from "vike/types";
-import type { ResearchPokemon } from "../../index/types";
 export type Data = Awaited<ReturnType<typeof data>>;
 
 export default async function data(pageContext: PageContextServer) {
