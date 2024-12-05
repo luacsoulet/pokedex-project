@@ -19,7 +19,7 @@ export default function Page() {
       <div>
         <h2>Types</h2>
         <ul>
-          {current.types.map((type) => (
+          {current.types.map((type: any) => (
             <li key={type.slug}>{type.name}</li>
           ))}
         </ul>
@@ -28,7 +28,7 @@ export default function Page() {
         <div>
           <h2>Statistiques</h2>
           <ul>
-            {current.stats.map((stat) => (
+            {current.stats.map((stat : any) => (
               <li key={stat.slug}>
                 {stat.name}: {stat.base_stat}
               </li>
