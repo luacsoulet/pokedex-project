@@ -11,9 +11,9 @@ export default function LayoutDefault({ children }: { children: React.ReactNode 
     <div className={"flex max-w-5xl m-auto"}>
       <Sidebar>
         <Logo />
-        <Link href="/">Welcome</Link>
-        <Link href="/todo">Todo</Link>
-        <Link href="/star-wars">Data Fetching</Link>
+        <Link href="/">Pokédex</Link>
+        <Link href="/pokemon/:id">Pokémon</Link>
+        <Link href="/team">My Team</Link>
         {""}
       </Sidebar>
       <Content>{children}</Content>
