@@ -3,7 +3,7 @@ export interface Pokemon {
   slug: string;
   name: string;
   sprites: {
-    shiny: {
+    shiny?: {
       male: string;
       female: string | null;
     };
@@ -12,8 +12,24 @@ export interface Pokemon {
       female: string | null;
     };
   };
+  types?: {
+    name: string;
+    slot: number;
+    slug: string;
+  }[];
+  stats?: {
+    name: string;
+    slug: string;
+    base_stat: number;
+  }[];
 }
 
 export type PokemonList = {
   pokemon: Pokemon[];
+};
+
+export type ResearchPokemon = {
+  previous: Pokemon;
+  current: Pokemon;
+  next: Pokemon;
 };
