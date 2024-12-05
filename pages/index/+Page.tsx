@@ -12,12 +12,14 @@ export default function Page() {
         {data.pokemonList.length > 0 ? (
           data.pokemonList.map((pokemon: Pokemon) => (
             <div key={pokemon.id} className="flex flex-col items-center w-[100px]">
-              {pokemon.sprites && pokemon.sprites.normal ? (
-                <img src={pokemon.sprites.normal.male} alt={pokemon.name} />
-            ) : (
-                <p>Image non disponible</p>
-              )}
-              <p>{pokemon.name}</p>
+              <a href={`/pokemon/${pokemon.slug}`}>
+                {pokemon.sprites && pokemon.sprites.normal ? (
+                  <img src={pokemon.sprites.normal.male} alt={pokemon.name} />
+                ) : (
+                  <p>Image non disponible</p>
+                )}
+                <p>{pokemon.name}</p>
+              </a>
             </div>
           ))
         ) : (
