@@ -22,7 +22,11 @@ export const teamReducer = (state: LocalTeamState, action: TeamAction): LocalTea
       if (state.team.length >= 6) return state;
       return {
         ...state,
-        team: [...state.team, { id: action.payload.id, slug: action.payload.slug }],
+        team: [...state.team, { 
+          id: action.payload.id, 
+          slug: action.payload.slug,
+          isShiny: action.payload.isShiny || false 
+        }],
       };
     case "DELETE":
       return {
