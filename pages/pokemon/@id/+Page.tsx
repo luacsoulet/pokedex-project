@@ -1,15 +1,22 @@
 import { useData } from "vike-react/useData";
 import type { Data } from "./+data";
+import { useReducer } from "react";
+import { useTeam } from '../../../contexts/teamContext';
 
 export default function Page() {
   const data = useData<Data>();
-
+  const { state, dispatch } = useTeam();
   if (!data || !data.currentPokemon || !data.currentPokemon.current) {
     return <div>Erreur : Pokémon introuvable ou problème de données.</div>;
   }
 
   const { current } = data.currentPokemon;
 
+  const handleAddToTeam = () => {
+    dispatch({ type: 'ADD', payload: { id: current.id, slug: current.slug } });
+  }
+  
+  console.log(state);
   return (
     <div>
       <h1>{current.name}</h1>
@@ -36,6 +43,7 @@ export default function Page() {
           </ul>
         </div>
       )}
+      <button onClick={handleAddToTeam}>Ajouter au team</button>
     </div>
   );
 }

@@ -33,3 +33,8 @@ export type ResearchPokemon = {
   current: Pokemon;
   next: Pokemon;
 };
+
+export type PokemonId = {
+  id: number;
+  slug: string;
+};
