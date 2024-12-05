@@ -37,4 +37,5 @@ export type ResearchPokemon = {
 export type PokemonId = {
   id: number;
   slug: string;
+  isShiny?: boolean;
 };
