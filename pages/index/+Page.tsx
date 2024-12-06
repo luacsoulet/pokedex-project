@@ -16,8 +16,7 @@ export default function Page() {
     setFilteredData(filteredData);
   }
 
-  console.log(filteredData)
-
+  const types: string[] = [...new Set(data.pokemonList.map((pokemon: Pokemon) => pokemon.types?.[0].name))];
 
   return (
     <div>
@@ -28,6 +27,13 @@ export default function Page() {
       ) : (
         <Gallery data={data} />
       )}
+      <div>
+        <select name="type" id="type">
+          {types.map((type: string, index: number) => (
+            <option key={index} value={type}>{type}</option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
