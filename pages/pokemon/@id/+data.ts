@@ -12,7 +12,7 @@ export default async function data(pageContext: PageContextServer) {
     headers.Authorization = `Bearer ${import.meta.env.VITE_POKEMON_API_KEY}`;
   }
 
-  const pokemon = await fetch(`${import.meta.env.VITE_POKEMON_API}/${pageContext.routeParams.id}`, {
+  const pokemon = await fetch(`${import.meta.env.VITE_POKEMON_API}/pokemon/${pageContext.routeParams.id}`, {
     headers,
   })
   .then((res) => res.json());
