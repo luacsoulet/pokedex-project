@@ -25,7 +25,14 @@ export function Page() {
         <Pokecard 
           key={index} 
           name={pokemon.name} 
-          image={state.team[index].isShiny ? (pokemon.sprites.shiny?.male ?? pokemon.sprites.normal.male) : pokemon.sprites.normal.male} 
+          image={state.team[index].isShiny && state.team[index].isFemale
+            ? (pokemon.sprites.shiny?.female ?? pokemon.sprites.shiny?.male ?? pokemon.sprites.normal.male)
+            : state.team[index].isShiny
+            ? (pokemon.sprites.shiny?.male ?? pokemon.sprites.normal.male)
+            : state.team[index].isFemale
+            ? (pokemon.sprites.normal.female ?? pokemon.sprites.normal.male)
+            : pokemon.sprites.normal.male
+          } 
         />
       ))}
     </div>
