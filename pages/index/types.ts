@@ -12,18 +12,18 @@ export interface Pokemon {
       female: string | null;
     };
   };
-  types?: {
-    name: string;
-    slot: number;
-    slug: string;
-  }[];
+  types?: PokemonType[];
   stats?: {
     name: string;
     slug: string;
     base_stat: number;
   }[];
 }
-
+export type PokemonType = {
+  name: string;
+  slot: number;
+  slug: string;
+}
 export type PokemonList = {
   pokemon: Pokemon[];
 };
