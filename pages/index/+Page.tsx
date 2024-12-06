@@ -13,11 +13,14 @@ export default function Page() {
   const [types, setTypes] = useState<Type[]>([]);
   const [selectedType, setSelectedType] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const handleSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsLoading(true);
-    const searchTerm = e.target.value.toLowerCase();
-    const filteredData = await SearchPokemon(searchTerm);
+    const newSearchTerm = e.target.value.toLowerCase();
+    setSearchTerm(newSearchTerm);
+    setSelectedType('');
+    const filteredData = await SearchPokemon(newSearchTerm);
     setFilteredData(filteredData);
     setIsLoading(false);
   }
@@ -27,16 +30,25 @@ export default function Page() {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    if (selectedType && selectedType !== 'Select a type') {
-      setFilteredData((filteredData?.length ? filteredData : data.pokemonList).filter((pokemon: Pokemon) => 
-        pokemon.types?.[0].slug === selectedType
-      ));
-    } else {
-      setFilteredData(filteredData || data.pokemonList);
-    }
-    setIsLoading(false)
-  }, [selectedType, data.pokemonList]);
+    const filterByType = async () => {
+      setIsLoading(true);
+      if (selectedType && selectedType !== 'Select a type') {
+        let dataToFilter = filteredData;
+        if (!filteredData?.length && searchTerm) {
+          dataToFilter = await SearchPokemon(searchTerm);
+        }
+        
+        setFilteredData((dataToFilter?.length ? dataToFilter : data.pokemonList).filter((pokemon: Pokemon) => 
+          pokemon.types?.some(type => type.slug === selectedType)
+        ));
+      } else {
+        setFilteredData(filteredData || data.pokemonList);
+      }
+      setIsLoading(false);
+    };
+
+    filterByType();
+  }, [selectedType, data.pokemonList, searchTerm]);
 
   useEffect(() => {
     getTypes().then((types: Types) => setTypes(types));
@@ -53,8 +65,13 @@ export default function Page() {
       <h1>Pokédex</h1>
       <div>
         <input type="text" placeholder="Rechercher un Pokémon" onChange={handleSearch}/>
-        <select name="type" id="type" onChange={handleTypeChange}>
-          <option value="Select a type">Select a type</option>
+        <select 
+          name="type" 
+          id="type" 
+          onChange={handleTypeChange}
+          value={selectedType}
+        >
+          <option value="">Select a type</option>
           {Array.isArray(types) && types.map((type: Type, index: number) => (
             <option key={index} value={type.slug}>{type.name}</option>
           ))}
