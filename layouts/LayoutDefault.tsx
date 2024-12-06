@@ -6,6 +6,7 @@ import React from "react";
 import logoUrl from "../assets/logo.svg";
 import { Link } from "../components/Link.js";
 import { TeamProvider } from "../contexts/teamContext";
+import { PokemonProvider } from "../contexts/pokemonContext";
 
 export default function LayoutDefault({ children }: { children: React.ReactNode }) {
   return (
@@ -33,9 +34,11 @@ function Content({ children }: { children: React.ReactNode }) {
   return (
     <div id="page-container">
       <div id="page-content" className={"p-5 pb-12 min-h-screen"}>
-        <TeamProvider>
-          {children}
-        </TeamProvider>
+        <PokemonProvider>
+          <TeamProvider>
+            {children}
+          </TeamProvider>
+        </PokemonProvider>
       </div>
     </div>
   );
