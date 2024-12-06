@@ -4,14 +4,17 @@ import { Pokecard } from "./Pokecard";
 interface GalleryProps {
   data: Pokemon[] | { pokemonList: Pokemon[] };
   isLoading: boolean;
+  hasFilters?: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
-export const Gallery = ({ data, isLoading }: GalleryProps) => {
+export const Gallery = ({ data, isLoading, hasFilters = false, setIsLoading }: GalleryProps) => {
+
   const pokemonList = Array.isArray(data) ? data : data.pokemonList;
 
   return (
     <div>
-      {isLoading ? (
+      {isLoading && pokemonList.length === 0 ? (
         <p>Loading...</p>
       ) : (
         <div className="flex flex-wrap gap-4">
