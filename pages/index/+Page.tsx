@@ -1,52 +1,45 @@
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import type { Data } from "./+data";
 import { useData } from "vike-react/useData";
 import { Gallery } from "../../components/Gallery";
 import type { Pokemon } from "./types";
-import { useState, useEffect, useContext, useCallback } from "react";
 import { SearchPokemon, getTypes, fetchMorePokemon } from "./SearchPokemon.telefunc";
 import type { Type, Types } from "./types";
 import { usePokemonContext } from "../../contexts/pokemonContext";
 
 export default function Page() {
   const data = useData<Data>();
-  const { pokemonList, setPokemonList } = usePokemonContext();
+  const { pokemonList, setPokemonList, isContextLoading, setIsContextLoading } = usePokemonContext();
   const [filteredData, setFilteredData] = useState<Pokemon[]>([]);
   const [types, setTypes] = useState<Type[]>([]);
   const [selectedType, setSelectedType] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [offset, setOffset] = useState<number>(0);
-  const PAGE_SIZE = 20;
+  const PAGE_SIZE = 60;
 
-  // Initialisation du contexte et des données filtrées avec les données initiales
   useEffect(() => {
     if (data.pokemonList) {
       setPokemonList(data.pokemonList);
       setFilteredData(data.pokemonList);
     }
-  }, [data.pokemonList]);
+  }, [data.pokemonList, setPokemonList]);
 
-  // Effet pour gérer la recherche et le filtrage
   useEffect(() => {
     const searchAndFilter = async () => {
       setIsLoading(true);
       try {
         if (searchTerm) {
-          // Obtenir les résultats de recherche
           const searchResults = await SearchPokemon(searchTerm);
-          
-          // Appliquer le filtre par type si nécessaire
+
           if (selectedType && selectedType !== 'Select a type') {
-            setFilteredData(searchResults.filter((pokemon: Pokemon) => 
+            setFilteredData(searchResults.filter((pokemon: Pokemon) =>
               pokemon.types?.some(type => type.slug === selectedType)
             ));
           } else {
             setFilteredData(searchResults);
           }
         } else {
-          // Si pas de searchTerm, revenir aux données du contexte
-          setFilteredData([]);
+          setFilteredData(data.pokemonList);
         }
       } catch (error) {
         console.error("Erreur lors de la recherche ou du filtrage:", error);
@@ -57,14 +50,13 @@ export default function Page() {
     };
 
     searchAndFilter();
-  }, [searchTerm, selectedType]);
+  }, [searchTerm, selectedType, data.pokemonList]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value.toLowerCase();
     setSearchTerm(newSearchTerm);
     setSelectedType('');
-    setOffset(0);
-  }
+  };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
@@ -73,16 +65,17 @@ export default function Page() {
   useEffect(() => {
     getTypes().then((types: Types) => setTypes(types));
   }, []);
-  console.log(types);
 
   const resetFilters = () => {
     setSelectedType('');
     setFilteredData(data.pokemonList);
-  }
+    setSearchTerm('');
+  };
 
-  // Fonction pour détecter quand on approche de la fin de la liste
   const handleScroll = useCallback(async () => {
-    if (isLoading || searchTerm || selectedType) return; // Ne pas charger plus si une recherche ou un filtre est actif
+    if (isLoading || isContextLoading || searchTerm || selectedType) {
+      return;
+    }
 
     const scrollHeight = document.documentElement.scrollHeight;
     const scrollTop = document.documentElement.scrollTop;
@@ -90,25 +83,47 @@ export default function Page() {
 
     if (scrollHeight - scrollTop - clientHeight <= 200) {
       setIsLoading(true);
+      setIsContextLoading(true);
+      
       try {
-        const newOffset = offset + PAGE_SIZE;
-        const newPokemon = await fetchMorePokemon(newOffset, PAGE_SIZE);
+        const currentLength = pokemonList.length;
+        const newPokemon = await fetchMorePokemon(currentLength + 1, PAGE_SIZE);
         
-        setPokemonList(prevList => [...prevList, ...newPokemon]);
-        setOffset(newOffset);
+        if (newPokemon && newPokemon.length > 0) {
+          await new Promise<void>((resolve) => {
+            setPokemonList(prevList => {
+              const newList = [...prevList];
+              newPokemon.forEach((pokemon: Pokemon) => {
+                if (!newList.some(p => p.id === pokemon.id)) {
+                  newList.push(pokemon);
+                }
+              });
+              resolve();
+              return newList;
+            });
+          });
+        }
       } catch (error) {
         console.error("Erreur lors du chargement des pokémon supplémentaires:", error);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => {
+          setIsLoading(false);
+          setIsContextLoading(false);
+        }, 100);
       }
     }
-  }, [offset, isLoading, searchTerm, selectedType]);
+  }, [isLoading, isContextLoading, searchTerm, selectedType, pokemonList.length]);
 
-  // Ajouter l'event listener pour le scroll
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+    const onScroll = () => {
+      if (!isLoading && !isContextLoading) {
+        handleScroll();
+      }
+    };
+
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [handleScroll, isLoading, isContextLoading]);
 
   return (
     <div>
@@ -135,10 +150,11 @@ export default function Page() {
       </div>
       <Gallery 
         data={searchTerm ? filteredData : pokemonList}
-        isLoading={isLoading} 
+        isLoading={isLoading || isContextLoading} 
         hasFilters={!!(searchTerm || selectedType)}
         setIsLoading={setIsLoading}
       />
+      {(isLoading || isContextLoading) && <p>Chargement des données...</p>}
     </div>
   );
 }
