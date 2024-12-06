@@ -25,7 +25,8 @@ export const teamReducer = (state: LocalTeamState, action: TeamAction): LocalTea
         team: [...state.team, { 
           id: action.payload.id, 
           slug: action.payload.slug,
-          isShiny: action.payload.isShiny || false 
+          isShiny: Boolean(action.payload.isShiny),
+          isFemale: Boolean(action.payload.isFemale)
         }],
       };
     case "DELETE":
