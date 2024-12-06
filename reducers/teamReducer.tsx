@@ -32,7 +32,7 @@ export const teamReducer = (state: LocalTeamState, action: TeamAction): LocalTea
     case "DELETE":
       return {
         ...state,
-        team: state.team.filter((pokemon) => pokemon.id !== action.payload),
+        team: state.team.filter((_, index) => index !== action.payload)
       };
     default:
       return state;
