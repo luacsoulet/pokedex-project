@@ -6,6 +6,7 @@ import { useTeam } from '../../../contexts/teamContext';
 export default function Page() {
   const data = useData<Data>();
   const { state, dispatch } = useTeam();
+  console.log(data);
   const { current } = data.currentPokemon;
   const [selectedSprite, setSelectedSprite] = useState(current.sprites.normal.male);
   
@@ -15,7 +16,17 @@ export default function Page() {
 
 
   const handleAddToTeam = () => {
-    dispatch({ type: 'ADD', payload: { id: current.id, slug: current.slug, isShiny: selectedSprite === current.sprites.shiny.male || selectedSprite === current.sprites.shiny.female } });
+    const isSelectedSpriteFemale = selectedSprite === current.sprites.normal.female || selectedSprite === current.sprites.shiny?.female;
+    
+    dispatch({ 
+      type: 'ADD', 
+      payload: { 
+        id: current.id, 
+        slug: current.slug, 
+        isShiny: selectedSprite === current.sprites.shiny?.male || selectedSprite === current.sprites.shiny?.female,
+        isFemale: isSelectedSpriteFemale
+      } 
+    });
   }
 
   const spriteButtons = [
