@@ -39,3 +39,11 @@ export type PokemonId = {
   slug: string;
   isShiny?: boolean;
 };
+
+export type Type = {
+  slug: string;
+  name: string;
+}
+
+export type Types = Type[]
+
