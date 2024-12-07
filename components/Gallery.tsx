@@ -13,16 +13,16 @@ export const Gallery = ({ data, isLoading, hasFilters = false, setIsLoading }: G
   const pokemonList = Array.isArray(data) ? data : data.pokemonList;
 
   return (
-    <div>
+    <div className="flex justify-center w-[80vw]">
       {isLoading && pokemonList.length === 0 ? (
         <p>Loading...</p>
       ) : (
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap gap-4 w-full">
           {pokemonList.length > 0 ? (
             pokemonList.map((pokemon: Pokemon) => (
-              <div key={pokemon.id} className="flex flex-col items-center w-[100px]">
+              <div key={pokemon.id} className="flex justify-center">
                 <a href={`/pokemon/${pokemon.slug}`}>
-                  <Pokecard name={pokemon.name} image={pokemon.sprites.normal.male} />
+                  <Pokecard name={pokemon.name} image={pokemon.sprites.normal.male} id={pokemon.id} />
                 </a>
               </div>
             ))
