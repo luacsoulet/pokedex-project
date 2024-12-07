@@ -1,0 +1,54 @@
+.pokemon-card {
+  @apply w-[200px] h-[200px] bg-white rounded-lg shadow-md relative flex flex-col items-center p-4;
+}
+
+.pokemon-id {
+  @apply absolute text-[80px] font-bold text-gray-100 select-none;
+}
+
+.pokemon-image-container {
+  @apply w-[80%] h-[120px] overflow-visible flex items-center justify-center;
+}
+
+.pokemon-image {
+  @apply h-[120px] w-auto object-contain [image-rendering:pixelated];
+}
+
+.pokemon-shadow {
+  @apply absolute bottom-[55px] w-[40%] h-[4px] bg-black/10 rounded-full blur-sm;
+}
+
+.pokemon-name {
+  @apply text-xl font-bold text-black mt-auto;
+}
+
+.missing-image-container {
+  @apply flex items-center justify-center h-full;
+}
+
+.missing-image-text {
+  @apply text-gray-400;
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+.scanline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 255, 255, 0.02) 50%
+  );
+  background-size: 100% 4px;
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+}
