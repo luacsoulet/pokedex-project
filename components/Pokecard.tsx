@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useTeam } from '../contexts/teamContext';
 import '../styles/pokecard.css';
 
 type PokecardProps = {
@@ -22,14 +21,15 @@ export const Pokecard = (props: PokecardProps) => {
         }
       }}
       transition={{ duration: 0.3 }}
-      className="relative p-4 rounded-xl bg-gray-800/80 backdrop-blur-sm border border-gray-700 shadow-lg hover:shadow-xl transition-all w-[200px] flex flex-col items-center gap-4"
+      className="pokemon-card"
     >
-      <span className="absolute top-2 left-2 text-sm font-mono text-gray-400">
+      <span className="pokemon-id" style={{ zIndex: 1 }}>
         #{props.id.toString().padStart(3, '0')}
       </span>
 
       <motion.div
-        className="relative w-40 h-40 flex items-center justify-center"
+        className="pokemon-image-container"
+        style={{ zIndex: 2 }}
         initial={{ y: 0, scale: 1 }}
         animate={{ y: 0, scale: 1 }}
         variants={{
@@ -58,17 +58,17 @@ export const Pokecard = (props: PokecardProps) => {
           <motion.img 
             src={props.image} 
             alt={props.name}
-            className="w-full h-full object-contain drop-shadow-lg [image-rendering:pixelated]"
+            className="pokemon-image"
           /> 
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-700/50 rounded-lg">
-            <p className="text-gray-400 text-sm">Données manquantes</p>
+          <div className="missing-image-container">
+            <p className="missing-image-text">Données manquantes</p>
           </div>
         )}
       </motion.div>
 
       <motion.div 
-        className="absolute bottom-16 w-24 h-2 bg-black/20 rounded-full blur-sm"
+        className="pokemon-shadow"
         style={{ transformOrigin: 'center' }}
         initial={{ scaleX: 1 }}
         animate={{ scaleX: 1 }}
@@ -89,9 +89,21 @@ export const Pokecard = (props: PokecardProps) => {
         }}
       />
 
-      <h2 className="text-lg font-semibold text-gray-200 mt-2">
+      <h2 className="pokemon-name">
         {props.name}
       </h2>
+
+      {props.onDelete && (
+        <motion.button
+          whileHover={{ scale: 1.1, backgroundColor: "#ef4444" }}
+          whileTap={{ scale: 0.9 }}
+          className="mt-auto px-4 py-2 bg-red-600/80 text-white rounded-md w-full 
+          border border-red-500/30 font-mono text-sm"
+          onClick={props.onDelete}
+        >
+          SUPPRIMER
+        </motion.button>
+      )}
     </motion.div>
   );
 };
