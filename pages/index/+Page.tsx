@@ -8,6 +8,10 @@ import type { Type, Types } from "./types";
 import { usePokemonContext } from "../../contexts/pokemonContext";
 import { Loader } from "../../components/Loader";
 import { SearchBar } from '../../components/SearchBar';
+import { motion } from "framer-motion";
+import { ScrollToTop } from "../../components/ScrollToTop";
+import { PageTitle } from "../../components/PageTitle";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 export default function Page() {
   const data = useData<Data>();
@@ -56,12 +60,6 @@ export default function Page() {
     searchAndFilter();
   }, [searchTerm, selectedType, data.pokemonList]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value.toLowerCase();
-    setSearchTerm(newSearchTerm);
-    setSelectedType('');
-  };
-
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
   };
@@ -76,68 +74,20 @@ export default function Page() {
     setSearchTerm('');
   };
 
-  const handleScroll = useCallback(async () => {
-    if (
-      isLoading || 
-      isContextLoading || 
-      searchTerm || 
-      selectedType || 
-      pokemonList.length >= 1024
-    ) {
-      return;
-    }
-
-    const scrollHeight = document.documentElement.scrollHeight;
-    const scrollTop = document.documentElement.scrollTop;
-    const clientHeight = document.documentElement.clientHeight;
-
-    if (scrollHeight - scrollTop - clientHeight <= 200) {
-      setIsLoading(true);
-      setIsContextLoading(true);
-      
-      try {
-        const currentLength = pokemonList.length;
-        const newPokemon = await fetchMorePokemon(currentLength + 1, PAGE_SIZE);
-        
-        if (newPokemon && newPokemon.length > 0) {
-          await new Promise<void>((resolve) => {
-            setPokemonList(prevList => {
-              const newList = [...prevList];
-              newPokemon.forEach((pokemon: Pokemon) => {
-                if (!newList.some(p => p.id === pokemon.id)) {
-                  newList.push(pokemon);
-                }
-              });
-              resolve();
-              return newList;
-            });
-          });
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des pokémon supplémentaires:", error);
-      } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-          setIsContextLoading(false);
-        }, 100);
-      }
-    }
-  }, [isLoading, isContextLoading, searchTerm, selectedType, pokemonList.length]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (!isLoading && !isContextLoading) {
-        handleScroll();
-      }
-    };
-
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [handleScroll, isLoading, isContextLoading]);
+  const { loading } = useInfiniteScroll({
+    isLoading,
+    isContextLoading,
+    searchTerm,
+    selectedType,
+    pokemonList,
+    setPokemonList,
+    fetchMore: fetchMorePokemon,
+    pageSize: PAGE_SIZE
+  });
 
   return (
     <div className="flex flex-col gap-4 justify-right items-center">
-      <h1>Pokédex</h1>
+      <PageTitle>Pokédex</PageTitle>
       <SearchBar 
         value={searchTerm}
         onChange={setSearchTerm}
@@ -148,12 +98,12 @@ export default function Page() {
       />
       <Gallery 
         data={searchTerm ? filteredData : pokemonList}
-        isLoading={isLoading || isContextLoading} 
+        isLoading={loading || isContextLoading} 
         hasFilters={!!(searchTerm || selectedType)}
         setIsLoading={setIsLoading}
       />
-      {(isLoading || isContextLoading) && <Loader />}
-      <button className="bg-blue-500 text-white p-2 rounded-md fixed bottom-4 right-4" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>TOP</button>
+      {(loading || isContextLoading) && <Loader />}
+      <ScrollToTop />
     </div>
   );
 }
