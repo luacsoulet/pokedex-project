@@ -4,6 +4,8 @@ import type { Type } from '../pages/index/types';
 
 interface EnergyProps {
   type: Type;
+  count?: number;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export const typesWithColor = [
@@ -27,30 +29,79 @@ export const typesWithColor = [
   { name: "Vol", slug: "flying", colors: ["#54CFEA", "#BABFAB"] }
 ];
 
-export const Energy: React.FC<EnergyProps> = ({ type }) => {
+// Ajoutons une fonction de correspondance des noms
+const getTypeSlug = (typeName: string): string => {
+  const typeMap: { [key: string]: string } = {
+    "Acier": "steel",
+    "Combat": "fighting",
+    "Dragon": "dragon",
+    "Eau": "water",
+    "Électrik": "electric",
+    "Fée": "fairy",
+    "Feu": "fire",
+    "Glace": "ice",
+    "Insecte": "bug",
+    "Normal": "normal",
+    "Plante": "grass",
+    "Poison": "poison",
+    "Psy": "psychic",
+    "Roche": "rock",
+    "Sol": "ground",
+    "Spectre": "ghost",
+    "Ténèbres": "dark",
+    "Vol": "flying"
+  };
+
+  return typeMap[typeName] || typeName.toLowerCase();
+};
+
+export const Energy: React.FC<EnergyProps> = ({ type, count, size = 'md' }) => {
   const typeStyle = typesWithColor.find(t => t.slug === type.slug);
+  
+  const sizeClasses = {
+    sm: 'w-20 h-8 text-xs',
+    md: 'w-24 h-10 text-sm',
+    lg: 'w-28 h-12 text-base'
+  };
 
   return (
-    <motion.div
-      className="w-24 h-10 flex items-center justify-center relative overflow-hidden rounded-lg"
-      style={{ 
-        background: typeStyle?.colors?.[0] || typeStyle?.color || '#gray-200'
-      }}
-    >
-      {typeStyle?.colors && (
-        <div 
-          className="absolute bottom-0 left-0 right-0 h-1/2" 
-          style={{ 
-            background: typeStyle.colors[1]
-          }}
-        />
+    <div className="flex items-center gap-2">
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        className={`${sizeClasses[size]} relative overflow-hidden rounded-xl flex items-center justify-center backdrop-blur-sm`}
+        style={{ 
+          background: typeStyle?.colors?.[0] || typeStyle?.color || '#gray-200'
+        }}
+      >
+        {typeStyle?.colors && (
+          <div 
+            className="absolute bottom-0 left-0 right-0 h-1/2" 
+            style={{ 
+              background: typeStyle.colors[1]
+            }}
+          />
+        )}
+        <span className="font-bold z-10 text-white/90">
+          {type.name}
+        </span>
+      </motion.div>
+
+      {count !== undefined && (
+        <motion.div 
+          className="h-6 px-2 bg-gray-700/80 rounded-lg flex items-center justify-center shadow-inner"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        >
+          <span className="font-mono font-bold text-sm text-gray-300">×{count}</span>
+        </motion.div>
       )}
-      <span className="font-bold text-sm z-10 text-white">
-        {type.name}
-      </span>
-    </motion.div>
+    </div>
   );
 };
 
 // Export du tableau des types pour réutilisation
 export { typesWithColor as TypesWithColor };
+
+// Exportons aussi la fonction pour l'utiliser ailleurs
+export { getTypeSlug };
