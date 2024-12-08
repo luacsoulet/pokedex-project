@@ -6,6 +6,8 @@ import type { Pokemon } from "./types";
 import { SearchPokemon, getTypes, fetchMorePokemon } from "./SearchPokemon.telefunc";
 import type { Type, Types } from "./types";
 import { usePokemonContext } from "../../contexts/pokemonContext";
+import { Loader } from "../../components/Loader";
+import { SearchBar } from '../../components/SearchBar';
 
 export default function Page() {
   const data = useData<Data>();
@@ -18,11 +20,13 @@ export default function Page() {
   const PAGE_SIZE = 60;
 
   useEffect(() => {
-    if (data.pokemonList) {
+    if (pokemonList.length > 0) {
+      setFilteredData(pokemonList);
+    } else if (data.pokemonList) {
       setPokemonList(data.pokemonList);
       setFilteredData(data.pokemonList);
     }
-  }, [data.pokemonList, setPokemonList]);
+  }, [data.pokemonList, pokemonList, setPokemonList]);
 
   useEffect(() => {
     const searchAndFilter = async () => {
@@ -73,7 +77,13 @@ export default function Page() {
   };
 
   const handleScroll = useCallback(async () => {
-    if (isLoading || isContextLoading || searchTerm || selectedType) {
+    if (
+      isLoading || 
+      isContextLoading || 
+      searchTerm || 
+      selectedType || 
+      pokemonList.length >= 1024
+    ) {
       return;
     }
 
@@ -126,35 +136,24 @@ export default function Page() {
   }, [handleScroll, isLoading, isContextLoading]);
 
   return (
-    <div>
+    <div className="flex flex-col gap-4 justify-right items-center">
       <h1>Pokédex</h1>
-      <div>
-        <input 
-          type="text" 
-          placeholder="Rechercher un Pokémon" 
-          onChange={handleSearch}
-          value={searchTerm}
-        />
-        <select 
-          name="type" 
-          id="type" 
-          onChange={handleTypeChange}
-          value={selectedType}
-        >
-          <option value="">Select a type</option>
-          {Array.isArray(types) && types.map((type: Type, index: number) => (
-            <option key={index} value={type.slug}>{type.name}</option>
-          ))}
-        </select>
-        <button onClick={resetFilters}>Reset filters</button>
-      </div>
+      <SearchBar 
+        value={searchTerm}
+        onChange={setSearchTerm}
+        types={types}
+        selectedType={selectedType}
+        onTypeChange={handleTypeChange}
+        onReset={resetFilters}
+      />
       <Gallery 
         data={searchTerm ? filteredData : pokemonList}
         isLoading={isLoading || isContextLoading} 
         hasFilters={!!(searchTerm || selectedType)}
         setIsLoading={setIsLoading}
       />
-      {(isLoading || isContextLoading) && <p>Chargement des données...</p>}
+      {(isLoading || isContextLoading) && <Loader />}
+      <button className="bg-blue-500 text-white p-2 rounded-md fixed bottom-4 right-4" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>TOP</button>
     </div>
   );
 }
