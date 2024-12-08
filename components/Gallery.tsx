@@ -17,7 +17,7 @@ export const Gallery = ({ data, isLoading, hasFilters = false, setIsLoading }: G
       {isLoading && pokemonList.length === 0 ? (
         <p>Loading...</p>
       ) : (
-        <div className="flex flex-wrap gap-4 w-full">
+        <div className="flex flex-wrap gap-4 w-full justify-center">
           {pokemonList.length > 0 ? (
             pokemonList.map((pokemon: Pokemon) => (
               <div key={pokemon.id} className="flex justify-center">
