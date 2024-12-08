@@ -58,7 +58,8 @@ export function Page() {
 
           return (
             <Pokecard 
-              key={pokemon.id} 
+              key={index} 
+              id={pokemon.id}
               name={pokemon.name} 
               image={teamMember.isShiny && teamMember.isFemale
                 ? (pokemon.sprites.shiny?.female ?? pokemon.sprites.shiny?.male ?? pokemon.sprites.normal.male)
