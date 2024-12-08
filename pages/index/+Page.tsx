@@ -6,6 +6,10 @@ import type { Pokemon } from "./types";
 import { SearchPokemon, getTypes, fetchMorePokemon } from "./SearchPokemon.telefunc";
 import type { Type, Types } from "./types";
 import { usePokemonContext } from "../../contexts/pokemonContext";
+import { Loader } from "../../components/Loader";
+import { SearchBar } from '../../components/SearchBar';
+import { PageTitle } from "../../components/PageTitle";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 export default function Page() {
   const data = useData<Data>();
@@ -18,11 +22,13 @@ export default function Page() {
   const PAGE_SIZE = 60;
 
   useEffect(() => {
-    if (data.pokemonList) {
+    if (pokemonList.length > 0) {
+      setFilteredData(pokemonList);
+    } else if (data.pokemonList) {
       setPokemonList(data.pokemonList);
       setFilteredData(data.pokemonList);
     }
-  }, [data.pokemonList, setPokemonList]);
+  }, [data.pokemonList, pokemonList, setPokemonList]);
 
   useEffect(() => {
     const searchAndFilter = async () => {
@@ -52,12 +58,6 @@ export default function Page() {
     searchAndFilter();
   }, [searchTerm, selectedType, data.pokemonList]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value.toLowerCase();
-    setSearchTerm(newSearchTerm);
-    setSelectedType('');
-  };
-
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedType(e.target.value);
   };
@@ -72,89 +72,35 @@ export default function Page() {
     setSearchTerm('');
   };
 
-  const handleScroll = useCallback(async () => {
-    if (isLoading || isContextLoading || searchTerm || selectedType) {
-      return;
-    }
-
-    const scrollHeight = document.documentElement.scrollHeight;
-    const scrollTop = document.documentElement.scrollTop;
-    const clientHeight = document.documentElement.clientHeight;
-
-    if (scrollHeight - scrollTop - clientHeight <= 200) {
-      setIsLoading(true);
-      setIsContextLoading(true);
-      
-      try {
-        const currentLength = pokemonList.length;
-        const newPokemon = await fetchMorePokemon(currentLength + 1, PAGE_SIZE);
-        
-        if (newPokemon && newPokemon.length > 0) {
-          await new Promise<void>((resolve) => {
-            setPokemonList(prevList => {
-              const newList = [...prevList];
-              newPokemon.forEach((pokemon: Pokemon) => {
-                if (!newList.some(p => p.id === pokemon.id)) {
-                  newList.push(pokemon);
-                }
-              });
-              resolve();
-              return newList;
-            });
-          });
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des pokémon supplémentaires:", error);
-      } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-          setIsContextLoading(false);
-        }, 100);
-      }
-    }
-  }, [isLoading, isContextLoading, searchTerm, selectedType, pokemonList.length]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (!isLoading && !isContextLoading) {
-        handleScroll();
-      }
-    };
-
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [handleScroll, isLoading, isContextLoading]);
+  const { loading } = useInfiniteScroll({
+    isLoading,
+    isContextLoading,
+    searchTerm,
+    selectedType,
+    pokemonList,
+    setPokemonList,
+    fetchMore: fetchMorePokemon,
+    pageSize: PAGE_SIZE
+  });
 
   return (
-    <div>
-      <h1>Pokédex</h1>
-      <div>
-        <input 
-          type="text" 
-          placeholder="Rechercher un Pokémon" 
-          onChange={handleSearch}
-          value={searchTerm}
-        />
-        <select 
-          name="type" 
-          id="type" 
-          onChange={handleTypeChange}
-          value={selectedType}
-        >
-          <option value="">Select a type</option>
-          {Array.isArray(types) && types.map((type: Type, index: number) => (
-            <option key={index} value={type.slug}>{type.name}</option>
-          ))}
-        </select>
-        <button onClick={resetFilters}>Reset filters</button>
-      </div>
+    <div className="flex flex-col gap-4 justify-right items-center">
+      <PageTitle>Pokédex</PageTitle>
+      <SearchBar 
+        value={searchTerm}
+        onChange={setSearchTerm}
+        types={types}
+        selectedType={selectedType}
+        onTypeChange={handleTypeChange}
+        onReset={resetFilters}
+      />
       <Gallery 
         data={searchTerm ? filteredData : pokemonList}
-        isLoading={isLoading || isContextLoading} 
+        isLoading={loading || isContextLoading} 
         hasFilters={!!(searchTerm || selectedType)}
         setIsLoading={setIsLoading}
       />
-      {(isLoading || isContextLoading) && <p>Chargement des données...</p>}
+      {(loading || isContextLoading) && <Loader />}
     </div>
   );
 }

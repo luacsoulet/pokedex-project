@@ -25,7 +25,7 @@ const sidebarVariants = {
 
 export default function LayoutDefault({ children }: { children: React.ReactNode }) {
   return (
-    <div className={"flex max-w-5xl ml-0 mr-auto"}>
+    <div className={"flex max-w-9xl ml-0 mr-auto"}>
       <Sidebar>
         <Logo />
         <Link href="/">Pokédex</Link>
