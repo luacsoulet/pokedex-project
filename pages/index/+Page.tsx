@@ -8,8 +8,6 @@ import type { Type, Types } from "./types";
 import { usePokemonContext } from "../../contexts/pokemonContext";
 import { Loader } from "../../components/Loader";
 import { SearchBar } from '../../components/SearchBar';
-import { motion } from "framer-motion";
-import { ScrollToTop } from "../../components/ScrollToTop";
 import { PageTitle } from "../../components/PageTitle";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
@@ -103,7 +101,6 @@ export default function Page() {
         setIsLoading={setIsLoading}
       />
       {(loading || isContextLoading) && <Loader />}
-      <ScrollToTop />
     </div>
   );
 }
