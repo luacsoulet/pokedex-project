@@ -36,13 +36,13 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         value={value}
         onChange={handleInputChange}
         placeholder={placeholder}
-        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm w-[210px]"
+        className="px-4 py-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg w-[210px] bg-gray-800 text-white placeholder-gray-400"
       />
       {value.length > 0 && (
         <select
           value={selectedType}
           onChange={onTypeChange}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent shadow-sm"
+          className="px-4 py-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-lg bg-gray-800 text-white"
         >
           <option value="">Type</option>
           {types.map((type, index) => (
@@ -55,7 +55,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       {value.length > 0 && selectedType && (
         <button 
           onClick={onReset}
-          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors shadow-lg"
         >
           Réinitialiser
         </button>
