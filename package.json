@@ -1,7 +1,9 @@
 {
   "scripts": {
     "dev": "tsx ./fastify-entry.ts",
-    "build": "vite build",
+    "build:vite": "vite build",
+    "build:vercel": "vite build --mode vercel",
+    "build": "npm run build:vite && npm run build:vercel",
     "preview": "cross-env NODE_ENV=production tsx ./fastify-entry.ts",
     "prisma:studio": "prisma studio",
     "prisma:generate": "prisma generate"
@@ -36,7 +38,8 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vike": "^0.4.206",
-    "vite": "^5.4.11"
+    "vite": "^5.4.11",
+    "vite-plugin-vercel": "^9.0.3"
   },
   "type": "module"
 }
